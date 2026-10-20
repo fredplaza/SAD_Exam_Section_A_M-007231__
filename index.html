@@ -18,11 +18,10 @@ button{cursor:pointer;background:var(--ac);color:#fff;border-color:var(--ac)} bu
 <h2>Student Scholarship Monitoring &amp; Academic Compliance</h2>
 <div id="msg"></div><div id="app"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="supabase-config.js"></script>
 <script>
 // ---- CONFIG: use the anon/public key ONLY (never the service-role key) ----
-const SUPABASE_URL = "https://xisvmdfdqtscljmphcjr.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhpc3ZtZGZkcXRzY2xqbXBoY2pyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0NjA0NzAsImV4cCI6MjEwODAzNjQ3MH0.CzkyW-lMt-PtWCE0umfKY3Cn_dij1puxt4ljn6AbS9E";
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const sb = supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt = t => new Date(t).toLocaleString("en-PH",{timeZone:"Asia/Manila"});
@@ -33,20 +32,12 @@ async function call(fn, args, okText){ const {data,error}=await sb.rpc(fn,args);
 
 async function init(){
   const {data:{session}} = await sb.auth.getSession();
-  if(!session) return loginView();
+  if(!session){ location.replace("login.html"); return; }
   const {data:p} = await sb.from("profiles").select("*").eq("auth_id",session.user.id).single();
   me=p; const {data:pr}=await sb.from("programs").select("*").order("id"); programs=pr||[];
   me.role==="staff"||me.role==="admin" ? staffView() : scholarView();
 }
-function loginView(){
-  $("app").innerHTML=`<div class="card"><h3>Sign in / Sign up</h3><div class="row">
-  <label>Email<input id="em" type="email"></label><label>Password<input id="pw" type="password"></label>
-  <label>Student ID (sign-up)<input id="sid" placeholder="e.g. A01"></label><label>Full name (sign-up)<input id="fn"></label>
-  <button id="li">Sign in</button><button class="s" id="su">Sign up</button></div></div>`;
-  $("li").onclick=async()=>{const {error}=await sb.auth.signInWithPassword({email:$("em").value,password:$("pw").value}); error?msg(error.message,false):init();};
-  $("su").onclick=async()=>{const {error}=await sb.auth.signUp({email:$("em").value,password:$("pw").value,options:{data:{student_id:$("sid").value.trim(),full_name:$("fn").value.trim()}}}); error?msg(error.message,false):(msg("Signed up. Now sign in.",true));};
-}
-const bar=()=>`<div class="card row"><span>${esc(me.full_name)} (${esc(me.student_id)}) — <b>${me.role}</b></span><button class="s" onclick="sb.auth.signOut().then(init)">Sign out</button></div>`;
+const bar=()=>`<div class="card row"><span>${esc(me.full_name)} (${esc(me.student_id)}) — <b>${me.role}</b></span><button class="s" onclick="sb.auth.signOut().then(()=>location.href='login.html')">Sign out</button></div>`;
 const badge=s=>`<span class="${s==="Verified"||s==="Compliant"||s==="Approved"?"ok":s==="Returned"||s==="With Deficiency"?"bad":"warn"}">${esc(s)}</span>`;
 const reasons=a=>a&&a.length?`<ul>${a.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:"";
 

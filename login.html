@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in | Scholarship Monitoring System</title>
+  <style>
+    :root{color-scheme:light;--bg:#f4f6f8;--fg:#202a33;--muted:#5b6874;--card:#fff;--line:#d8dee5;--accent:#1f5fbf;--error:#a3261e;--success:#1b6e3b}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;padding:24px;display:grid;place-items:center;background:var(--bg);color:var(--fg);font:15px system-ui,sans-serif}
+    main{width:min(100%,440px)}
+    h1{font-size:24px;line-height:1.2;margin:0 0 8px}
+    p{color:var(--muted);margin:0 0 22px}
+    .panel{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:24px}
+    .tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:20px}
+    .tabs button{flex:1;background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);padding:10px;cursor:pointer;font:inherit}
+    .tabs button[aria-selected="true"]{border-color:var(--accent);color:var(--accent);font-weight:600}
+    form{display:grid;gap:14px}
+    label{display:grid;gap:5px;font-size:13px;font-weight:600}
+    input{width:100%;padding:10px;border:1px solid var(--line);border-radius:5px;background:#fff;color:var(--fg);font:inherit}
+    button.submit{border:0;border-radius:5px;background:var(--accent);color:#fff;padding:10px 14px;font:inherit;font-weight:600;cursor:pointer}
+    #message{min-height:20px;margin:0;font-size:13px;color:var(--error)}
+    #message[data-kind="success"]{color:var(--success)}
+    [hidden]{display:none!important}
+    @media(prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#14181d;--fg:#e6e9ed;--muted:#aab4bf;--card:#1d232b;--line:#343c47;--accent:#6ea4f4}input{background:#14181d}}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Scholarship Monitoring</h1>
+    <p>Sign in to your account or register as a scholar.</p>
+    <section class="panel" aria-label="Account access">
+      <div class="tabs" role="tablist" aria-label="Account action">
+        <button id="signin-tab" type="button" role="tab" aria-selected="true" aria-controls="signin-form">Sign in</button>
+        <button id="signup-tab" type="button" role="tab" aria-selected="false" aria-controls="signup-form">Sign up</button>
+      </div>
+      <form id="signin-form" role="tabpanel" aria-labelledby="signin-tab">
+        <label>Email<input id="signin-email" type="email" autocomplete="email" required></label>
+        <label>Password<input id="signin-password" type="password" autocomplete="current-password" required></label>
+        <button class="submit" type="submit">Sign in</button>
+      </form>
+      <form id="signup-form" role="tabpanel" aria-labelledby="signup-tab" hidden>
+        <label>Full name<input id="signup-name" autocomplete="name" required></label>
+        <label>Student ID<input id="signup-id" placeholder="e.g. A01" required></label>
+        <label>Email<input id="signup-email" type="email" autocomplete="email" required></label>
+        <label>Password<input id="signup-password" type="password" autocomplete="new-password" required></label>
+        <button class="submit" type="submit">Create account</button>
+      </form>
+      <p id="message" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="supabase-config.js"></script>
+  <script>
+    const sb = supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+    const $ = id => document.getElementById(id);
+    const showMessage = (text, kind="error") => {
+      $("message").textContent = text;
+      $("message").dataset.kind = kind;
+    };
+    const setMode = signup => {
+      $("signin-tab").setAttribute("aria-selected", String(!signup));
+      $("signup-tab").setAttribute("aria-selected", String(signup));
+      $("signin-form").hidden = signup;
+      $("signup-form").hidden = !signup;
+      showMessage("");
+    };
+    $("signin-tab").onclick = () => setMode(false);
+    $("signup-tab").onclick = () => setMode(true);
+    $("signin-form").onsubmit = async event => {
+      event.preventDefault();
+      const {error} = await sb.auth.signInWithPassword({email:$("signin-email").value,password:$("signin-password").value});
+      if(error) return showMessage(error.message);
+      location.replace("index.html");
+    };
+    $("signup-form").onsubmit = async event => {
+      event.preventDefault();
+      const {error} = await sb.auth.signUp({
+        email:$("signup-email").value,
+        password:$("signup-password").value,
+        options:{data:{student_id:$("signup-id").value.trim(),full_name:$("signup-name").value.trim()}}
+      });
+      if(error) return showMessage(error.message);
+      setMode(false);
+      showMessage("Account created. Sign in to continue.","success");
+    };
+    sb.auth.getSession().then(({data:{session}})=>{if(session) location.replace("index.html");});
+  </script>
+</body>
+</html>

@@ -5,7 +5,7 @@ Stack: HTML/CSS/vanilla JS, Supabase (Postgres + Auth + RLS), `@supabase/supabas
 ## Setup
 1. Create a Supabase project. Authentication → disable "Confirm email" (for the exam).
 2. SQL Editor → paste and run `schema.sql` (tables, RLS, RPC functions, 2 policies, seeds A01–A06).
-3. Open `index.html`, set `SUPABASE_URL` and `SUPABASE_ANON_KEY` (anon key only; never the service-role key). No env file needed; for a build setup use `SUPABASE_URL`, `SUPABASE_ANON_KEY`.
+3. Set the project URL and anon/public key in `supabase-config.js` (never use the service-role key). Sign-in and registration are in `login.html`; `index.html` opens the signed-in dashboard.
 4. Create accounts through the app's Sign up form. New signups are scholars by default:
    - First admin: sign up with Student ID `ADMIN1`, then in SQL Editor run `update profiles set role='admin' where student_id='ADMIN1';` Sign out and back in. Admins can change other account roles in the dashboard.
    - Staff: sign up with Student ID `STAFF1`, then promote in SQL with `update profiles set role='staff' where student_id='STAFF1';` (or let an admin change the role).
