@@ -1,10 +1,10 @@
-# Scholarship Monitoring & Academic Compliance System
+f# Scholarship Monitoring & Academic Compliance System
 
 Stack: HTML/CSS/vanilla JS, Supabase (Postgres + Auth + RLS), `@supabase/supabase-js@2.45.4` via CDN. Synthetic data only.
 
 ## Setup
 1. Create a Supabase project. Authentication → disable "Confirm email" (for the exam).
-2. SQL Editor → paste and run `schema.sql` (tables, RLS, RPC functions, 2 policies, seeds A01–A06).
+2. SQL Editor → paste and run `schema.sql` (tables, RLS, RPC functions, policies, seeds A01–A06). It is safe to run again on an existing project; existing records are preserved. Re-run it after updates to add the persisted compliance-checklist column and refresh RPC functions.
 3. Set the project URL and anon/public key in `supabase-config.js` (never use the service-role key). Sign-in and registration are in `login.html`; `index.html` opens the signed-in dashboard.
 4. Create accounts through the app's Sign up form. New signups are scholars by default:
    - First admin: sign up with Student ID `ADMIN1`, then in SQL Editor run `update profiles set role='admin' where student_id='ADMIN1';` Sign out and back in. Admins can change other account roles in the dashboard.
@@ -15,7 +15,7 @@ Stack: HTML/CSS/vanilla JS, Supabase (Postgres + Auth + RLS), `@supabase/supabas
 
 ## Design notes
 - Clients have **read-only** table access (RLS). All writes go through `security definer` functions that check role and rules: `submit_grades`, `verify_submission`, `evaluate_submission`, `decide_renewal`, `register_scholar`.
-- Thresholds/deadline are read from the `programs` table, not code.
+- Thresholds/deadline are read from the `programs` table, not code. Each evaluation stores the pass/fail policy checklist and threshold labels with the result.
 - Submission status, compliance result and renewal decision are separate columns.
 - Deadlines compare `timestamptz` (seed uses +08:00); display in Asia/Manila.
 
@@ -47,5 +47,5 @@ Quick TC08 check in browser console while signed in as a scholar:
 `await sb.from('submissions').select('*')` (only own row) and `await sb.rpc('verify_submission',{p_id:'<uuid>',p_status:'Verified',p_reason:null})` (error: Staff only).
 
 ## Known limitations
-- Policy thresholds are edited via the `programs` table, not the UI. Only AY 2026-2027 is offered in the form. The staff dashboard counts all assigned scholars (not only those with a submission in the chosen semester). Untested against a live project until you run the checks above.
+- Policy thresholds are edited via the `programs` table, not the UI. Academic-year options cover a rolling five-year range. Dashboard assigned count reflects all assigned scholars; the other metrics and records are for the selected semester. Untested against a live project until you run the checks above.
 - For an existing database created with the former two-role schema, run `migration_admin_role.sql` in Supabase SQL Editor before using admin accounts.

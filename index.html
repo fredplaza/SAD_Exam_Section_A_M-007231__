@@ -2,18 +2,120 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Scholarship Monitoring System</title>
 <style>
-:root{--bg:#f6f7f9;--fg:#1c2530;--card:#fff;--bd:#d5dae1;--ac:#1f5fbf;--ok:#1b7a3d;--bad:#b3261e;--warn:#9a6700}
-@media(prefers-color-scheme:dark){:root{--bg:#14181d;--fg:#e6e9ed;--card:#1d232b;--bd:#343c47;--ac:#6ea4f4;--ok:#5fcf86;--bad:#ff8a80;--warn:#e3b341}}
-body{font:15px system-ui,sans-serif;background:var(--bg);color:var(--fg);margin:0;padding:16px;max-width:1100px;margin-inline:auto}
-.card{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:14px;margin-bottom:14px}
-input,select,button,textarea{font:inherit;padding:6px 8px;border:1px solid var(--bd);border-radius:6px;background:var(--card);color:var(--fg)}
-button{cursor:pointer;background:var(--ac);color:#fff;border-color:var(--ac)} button.s{background:var(--card);color:var(--fg);border-color:var(--bd)}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:end} label{display:flex;flex-direction:column;font-size:12px;gap:2px}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px} .stats div{border:1px solid var(--bd);border-radius:8px;padding:10px;text-align:center}
-.stats b{display:block;font-size:24px}
-.tw{overflow-x:auto} table{border-collapse:collapse;width:100%} th,td{border-bottom:1px solid var(--bd);padding:6px;text-align:left;vertical-align:top;font-size:13px}
-.ok{color:var(--ok)}.bad{color:var(--bad)}.warn{color:var(--warn)} #msg{position:sticky;top:0;padding:8px;border-radius:6px;margin-bottom:10px;display:none}
-.hide{display:none} ul{margin:4px 0;padding-left:18px}
+:root{
+  --bg:#edf2f7;
+  --fg:#1e2a36;
+  --muted:#57667a;
+  --card:#ffffff;
+  --line:#d9e1ea;
+  --line-strong:#c5ced9;
+  --ac:#2d6cdf;
+  --ac-dark:#1c53b7;
+  --pill:#eaf2ff;
+  --ok:#1f7a46;
+  --ok-bg:#e8f7ee;
+  --bad:#b3261e;
+  --bad-bg:#fdeceb;
+  --warn:#9a6700;
+  --warn-bg:#fff3d9;
+  --shadow:0 12px 28px rgba(15,23,42,.06);
+}
+@media(prefers-color-scheme:dark){
+  :root{--bg:#141b22;--fg:#eaf1f7;--muted:#a9b6c4;--card:#1d2733;--line:#2f3b48;--line-strong:#47576c;--ac:#6ea4ff;--ac-dark:#80b1ff;--pill:#20314d;--ok:#74d9a0;--ok-bg:#123526;--bad:#ff8c82;--bad-bg:#3a1a1c;--warn:#f7c76a;--warn-bg:#463613;--shadow:0 12px 32px rgba(0,0,0,.24)}
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font:15px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:linear-gradient(180deg,var(--bg),#f5f8fb 28%,var(--bg));
+  color:var(--fg);
+  margin:0;
+  padding:24px 18px 40px;
+}
+#app{max-width:1200px;margin:0 auto}
+h2{margin:0 0 18px;font-size:clamp(2rem,2vw,3rem);letter-spacing:-.04em;line-height:1.15;color:var(--fg)}
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:16px;
+  box-shadow:var(--shadow);
+  padding:18px 18px 16px;
+  margin-bottom:18px;
+}
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  min-height:72px;
+}
+.userline{display:flex;align-items:center;flex-wrap:wrap;gap:10px;font-size:1.05rem;line-height:1.4;color:var(--fg)}
+.userline .role-tag{display:inline-flex;align-items:center;padding:4px 10px;border-radius:999px;background:var(--pill);border:1px solid var(--line);font-size:.8rem;font-weight:700;text-transform:capitalize;color:var(--ac)}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px 16px;align-items:end}
+label{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:var(--muted)}
+input,select,button,textarea{font:inherit}
+input,select,textarea{
+  width:100%;
+  border:1px solid var(--line-strong);
+  background:var(--card);
+  color:var(--fg);
+  border-radius:10px;
+  padding:10px 12px;
+  min-height:42px;
+  transition:border-color .2s ease, box-shadow .2s ease;
+}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--ac);box-shadow:0 0 0 3px rgba(45,108,223,.12)}
+button{
+  appearance:none;
+  border:1px solid var(--ac);
+  background:var(--ac);
+  color:#fff;
+  border-radius:10px;
+  padding:10px 14px;
+  min-height:42px;
+  font-weight:700;
+  cursor:pointer;
+  transition:transform .15s ease, background .2s ease, border-color .2s ease;
+}
+button:hover{transform:translateY(-1px);background:var(--ac-dark)}
+button.s{
+  background:var(--card);
+  color:var(--fg);
+  border-color:var(--line-strong);
+}
+button.s:hover{background:rgba(45,108,223,.04)}
+.card h3{margin:0 0 14px;font-size:1.08rem;letter-spacing:-.02em}
+.card p{margin:0 0 16px;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.stats div{border:1px solid var(--line);border-radius:12px;padding:12px 10px;background:linear-gradient(180deg,rgba(45,108,223,.02),transparent);text-align:center}
+.stats b{display:block;font-size:1.8rem;line-height:1.1;margin-bottom:4px;letter-spacing:-.04em}
+.tw{overflow-x:auto}
+.table-wrap{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+table{width:100%;border-collapse:collapse;min-width:760px}
+th,td{padding:12px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;font-size:13px}
+th{background:rgba(148,163,184,.08);color:var(--muted);font-weight:800;letter-spacing:.02em;text-transform:uppercase;font-size:11px}
+tr:last-child td{border-bottom:none}
+.status-pill{display:inline-flex;align-items:center;border-radius:999px;padding:4px 10px;font-size:11px;font-weight:700;line-height:1.4;border:1px solid transparent}
+.ok{color:var(--ok);background:var(--ok-bg);border-color:rgba(31,122,70,.15)}
+.bad{color:var(--bad);background:var(--bad-bg);border-color:rgba(179,38,30,.12)}
+.warn{color:var(--warn);background:var(--warn-bg);border-color:rgba(154,103,0,.12)}
+#msg{position:sticky;top:0;z-index:10;padding:10px 12px;border-radius:10px;margin-bottom:12px;border:1px solid transparent;display:none;background:rgba(45,108,223,.08);color:var(--fg)}
+#msg[data-kind="error"]{background:rgba(179,38,30,.08);border-color:rgba(179,38,30,.1)}
+#msg[data-kind="success"]{background:rgba(31,122,70,.08);border-color:rgba(31,122,70,.12)}
+.hide{display:none}
+ul{margin:4px 0 0;padding-left:18px;color:var(--muted)}
+small{display:block;color:var(--muted);margin-top:12px;line-height:1.5}
+@media (max-width: 720px){
+  body{padding:18px 12px 28px}
+  .topbar{flex-direction:column;align-items:flex-start}
+  .card{padding:16px 14px}
+  h2{font-size:1.9rem}
+  .row{grid-template-columns:1fr 1fr}
+}
+@media (max-width: 520px){
+  .row{grid-template-columns:1fr}
+  .stats{grid-template-columns:1fr 1fr}
+}
 </style></head><body>
 <h2>Student Scholarship Monitoring &amp; Academic Compliance</h2>
 <div id="msg"></div><div id="app"></div>
@@ -25,9 +127,30 @@ const sb = supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt = t => new Date(t).toLocaleString("en-PH",{timeZone:"Asia/Manila"});
-let me=null, programs=[], state={sem:"2026-2027|1",q:"",prog:"",comp:""};
+const academicStart = () => {
+  const parts = new Intl.DateTimeFormat("en",{timeZone:"Asia/Manila",year:"numeric",month:"numeric"}).formatToParts(new Date());
+  const values = Object.fromEntries(parts.map(part=>[part.type,part.value]));
+  return Number(values.year) - (Number(values.month)<7 ? 1 : 0);
+};
+const academicTerms = () => {
+  const start=academicStart();
+  return Array.from({length:5},(_,i)=>start-2+i).flatMap(year=>[
+    {value:`${year}-${year+1}|1`,label:`${year}-${year+1} S1`},
+    {value:`${year}-${year+1}|2`,label:`${year}-${year+1} S2`}
+  ]);
+};
+const academicYears = () => {
+  const start=academicStart();
+  return Array.from({length:5},(_,i)=>start-2+i).map(year=>`${year}-${year+1}`);
+};
+const defaultTerm = () => {
+  const start=academicStart();
+  const month=Number(new Intl.DateTimeFormat("en",{timeZone:"Asia/Manila",month:"numeric"}).format(new Date()));
+  return `${start}-${start+1}|${month>=7?1:2}`;
+};
+let me=null, programs=[], state={sem:defaultTerm(),q:"",prog:"",comp:""};
 
-function msg(t, ok){ const m=$("msg"); m.style.display="block"; m.textContent=t; m.style.background=ok?"#1b7a3d33":"#b3261e33"; setTimeout(()=>m.style.display="none",6000); }
+function msg(t, ok){ const m=$("msg"); m.style.display="block"; m.dataset.kind=ok?"success":"error"; m.textContent=t; setTimeout(()=>m.style.display="none",6000); }
 async function call(fn, args, okText){ const {data,error}=await sb.rpc(fn,args); if(error){msg(error.message,false);return null;} if(okText) msg(okText,true); return data ?? true; }
 
 async function init(){
@@ -37,16 +160,17 @@ async function init(){
   me=p; const {data:pr}=await sb.from("programs").select("*").order("id"); programs=pr||[];
   me.role==="staff"||me.role==="admin" ? staffView() : scholarView();
 }
-const bar=()=>`<div class="card row"><span>${esc(me.full_name)} (${esc(me.student_id)}) — <b>${me.role}</b></span><button class="s" onclick="sb.auth.signOut().then(()=>location.href='login.html')">Sign out</button></div>`;
-const badge=s=>`<span class="${s==="Verified"||s==="Compliant"||s==="Approved"?"ok":s==="Returned"||s==="With Deficiency"?"bad":"warn"}">${esc(s)}</span>`;
+const bar=()=>`<div class="card topbar"><div class="userline"><span>${esc(me.full_name)} (${esc(me.student_id)})</span><span class="role-tag">${esc(me.role)}</span></div><button class="s" onclick="sb.auth.signOut().then(()=>location.href='login.html')">Sign out</button></div>`;
+const badge=s=>`<span class="status-pill ${s==="Verified"||s==="Compliant"||s==="Approved"?"ok":s==="Returned"||s==="With Deficiency"?"bad":"warn"}">${esc(s)}</span>`;
 const reasons=a=>a&&a.length?`<ul>${a.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:"";
+const checks=a=>a&&a.length?`<ul>${a.map(x=>`<li>${x.passed?"Pass":"Fail"}: ${esc(x.label)}</li>`).join("")}</ul>`:"";
 
 // ---------------- SCHOLAR ----------------
 async function scholarView(){
   const {data:subs}=await sb.from("submissions").select("*").order("submitted_at",{ascending:false});
   $("app").innerHTML=bar()+`<div class="card"><h3>Submit semester academic summary</h3>
   <p>Use this form for a new semester, or to resubmit a <b>Returned</b> record (same year/semester).</p><div class="row">
-  <label>Academic year<select id="ay"><option>2026-2027</option></select></label>
+  <label>Academic year<select id="ay">${academicYears().map(year=>`<option ${year===defaultTerm().split("|")[0]?"selected":""}>${year}</option>`).join("")}</select></label>
   <label>Semester<select id="sm"><option>1</option><option>2</option></select></label>
   <label>GWA (1.00–5.00)<input id="gwa" type="number" step="0.01" min="1" max="5"></label>
   <label>Enrolled units<input id="un" type="number" min="0" step="1"></label>
@@ -55,9 +179,9 @@ async function scholarView(){
   <label>Dropped<input id="dr" type="number" min="0" step="1" value="0"></label>
   <label>Grade-document reference<input id="ev" placeholder="e.g. DOC-123"></label>
   <button id="go">Submit</button></div></div>
-  <div class="card"><h3>My submissions</h3><div class="tw"><table><tr><th>Term</th><th>Summary</th><th>Submitted</th><th>Verification</th><th>Compliance</th><th>Renewal</th><th></th></tr>
+  <div class="card"><h3>My submissions</h3><div class="tw table-wrap"><table><tr><th>Term</th><th>Summary</th><th>Submitted</th><th>Verification</th><th>Compliance</th><th>Renewal</th><th></th></tr>
   ${(subs||[]).map(s=>`<tr><td>${s.academic_year} S${s.semester}</td><td>GWA ${s.gwa}, ${s.units}u, F${s.failed_count} INC${s.inc_count} D${s.dropped_count}<br>${esc(s.evidence_ref)}</td>
-  <td>${fmt(s.submitted_at)}</td><td>${badge(s.verification_status)}<br>${esc(s.verification_reason)}</td><td>${badge(s.compliance_result)}${reasons(s.compliance_reasons)}</td>
+  <td>${fmt(s.submitted_at)}</td><td>${badge(s.verification_status)}<br>${esc(s.verification_reason)}</td><td>${badge(s.compliance_result)}${checks(s.compliance_checks)}${reasons(s.compliance_reasons)}</td>
   <td>${badge(s.renewal_decision)}<br>${esc(s.decision_note)}</td><td><button class="s" onclick="hist('${s.id}')">History</button></td></tr>`).join("")||"<tr><td colspan=7>None yet</td></tr>"}</table></div><div id="h"></div></div>`;
   $("go").onclick=async()=>{
     const gwa=parseFloat($("gwa").value), nums=["un","fl","ic","dr"].map(i=>$(i).value);
@@ -83,7 +207,6 @@ async function staffView(){
   const am=Object.fromEntries(asg.map(a=>[a.scholar_id,a.program_id]));
   const [ay,sem]=state.sem.split("|");
   const rows=subs.filter(s=>s.academic_year===ay&&String(s.semester)===sem).map(s=>({s,p:pm[s.scholar_id]||{},prog:pn[am[s.scholar_id]]||"—"}));
-  const inSem=asg.filter(a=>subs.some(s=>s.scholar_id===a.scholar_id&&s.academic_year===ay&&String(s.semester)===sem)||true).length;
   const q=state.q.toLowerCase();
   const shown=rows.filter(r=>(!q||(r.p.student_id||"").toLowerCase().includes(q)||(r.p.full_name||"").toLowerCase().includes(q))&&(!state.prog||r.prog===state.prog)&&(!state.comp||r.s.compliance_result===state.comp));
   const c=k=>rows.filter(r=>r.s.compliance_result===k).length;
@@ -95,14 +218,14 @@ async function staffView(){
   <div class="card"><h3>Register / assign scholar</h3><div class="row"><label>Student ID<input id="rs"></label><label>Name<input id="rn"></label>
    <label>Program<select id="rp">${programs.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join("")}</select></label><button id="rg">Save</button></div>
    <small>Policy thresholds come from the program records: ${programs.map(p=>`${esc(p.name)} (GWA≤${p.max_gwa}, units≥${p.min_units}, F≤${p.max_failed}, INC≤${p.max_inc}, D≤${p.max_drop})`).join("; ")}</small></div>
-  <div class="card"><div class="row"><label>Semester<select id="fs"><option value="2026-2027|1">2026-2027 S1</option><option value="2026-2027|2">2026-2027 S2</option></select></label>
+  <div class="card"><div class="row"><label>Semester<select id="fs">${academicTerms().map(term=>`<option value="${term.value}">${term.label}</option>`).join("")}</select></label>
    <label>Search ID / name<input id="fq" value="${esc(state.q)}"></label>
    <label>Program<select id="fp"><option value="">All</option>${programs.map(p=>`<option ${state.prog===p.name?"selected":""}>${esc(p.name)}</option>`).join("")}</select></label>
    <label>Compliance<select id="fc">${["","Not Evaluated","Compliant","With Deficiency"].map(x=>`<option ${state.comp===x?"selected":""} value="${x}">${x||"All"}</option>`).join("")}</select></label><button id="fa">Apply</button></div></div>
-  <div class="card"><div class="tw"><table><tr><th>Scholar</th><th>Program</th><th>Summary</th><th>Submitted</th><th>Verification</th><th>Compliance</th><th>Renewal</th><th>Actions</th></tr>
+  <div class="card"><div class="tw table-wrap"><table><tr><th>Scholar</th><th>Program</th><th>Summary</th><th>Submitted</th><th>Verification</th><th>Compliance</th><th>Renewal</th><th>Actions</th></tr>
   ${shown.map(({s,p,prog})=>`<tr><td>${esc(p.student_id)}<br>${esc(p.full_name)}</td><td>${esc(prog)}</td>
    <td>GWA ${s.gwa}, ${s.units}u, F${s.failed_count} INC${s.inc_count} D${s.dropped_count}<br>${esc(s.evidence_ref)}</td><td>${fmt(s.submitted_at)}</td>
-   <td>${badge(s.verification_status)}<br>${esc(s.verification_reason)}</td><td>${badge(s.compliance_result)}${reasons(s.compliance_reasons)}</td>
+  <td>${badge(s.verification_status)}<br>${esc(s.verification_reason)}</td><td>${badge(s.compliance_result)}${checks(s.compliance_checks)}${reasons(s.compliance_reasons)}</td>
    <td>${badge(s.renewal_decision)}<br>${esc(s.decision_note)}</td>
    <td><button onclick="act('V','${s.id}')">Verify</button> <button class="s" onclick="act('R','${s.id}')">Return</button> <button onclick="act('E','${s.id}')">Evaluate</button>
    <button onclick="act('A','${s.id}')">Approve</button> <button class="s" onclick="act('H','${s.id}')">Hold</button> <button class="s" onclick="hist('${s.id}')">History</button></td></tr>`).join("")||"<tr><td colspan=8>No records</td></tr>"}</table></div><div id="h"></div></div>`;

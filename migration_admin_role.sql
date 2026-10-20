@@ -23,3 +23,10 @@ end $$;
 
 revoke all on function public.set_profile_role(uuid,text) from public, anon;
 grant execute on function public.set_profile_role(uuid,text) to authenticated;
+
+-- Promote the initial admin account after its profile has been linked by signup.
+update public.profiles as p
+set role = 'admin'
+from auth.users as u
+where p.auth_id = u.id
+  and lower(u.email) = lower('admin@gmail.com');

@@ -5,24 +5,59 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Sign in | Scholarship Monitoring System</title>
   <style>
-    :root{color-scheme:light;--bg:#f4f6f8;--fg:#202a33;--muted:#5b6874;--card:#fff;--line:#d8dee5;--accent:#1f5fbf;--error:#a3261e;--success:#1b6e3b}
+    :root {
+      color-scheme: light;
+      --bg:#edf2f7;
+      --fg:#1e2a36;
+      --muted:#5a6979;
+      --card:#ffffff;
+      --line:#d8e0ea;
+      --line-strong:#c5ced9;
+      --accent:#2d6cdf;
+      --accent-dark:#1d54ba;
+      --error:#b3261e;
+      --error-bg:#fdeceb;
+      --success:#1f7a46;
+      --success-bg:#e8f7ee;
+      --shadow:0 12px 28px rgba(15,23,42,.06);
+    }
     *{box-sizing:border-box}
-    body{margin:0;min-height:100vh;padding:24px;display:grid;place-items:center;background:var(--bg);color:var(--fg);font:15px system-ui,sans-serif}
-    main{width:min(100%,440px)}
-    h1{font-size:24px;line-height:1.2;margin:0 0 8px}
-    p{color:var(--muted);margin:0 0 22px}
-    .panel{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:24px}
-    .tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:20px}
-    .tabs button{flex:1;background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);padding:10px;cursor:pointer;font:inherit}
-    .tabs button[aria-selected="true"]{border-color:var(--accent);color:var(--accent);font-weight:600}
+    body{
+      margin:0;
+      min-height:100vh;
+      padding:24px 16px;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(180deg,#edf2f7,#f8fafc 30%,#edf2f7);
+      color:var(--fg);
+      font:15px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    }
+    main{width:min(100%,460px)}
+    h1{font-size:clamp(2rem,2vw,2.5rem);line-height:1.12;letter-spacing:-.04em;margin:0 0 10px}
+    p{color:var(--muted);margin:0 0 18px}
+    .panel{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:16px;
+      box-shadow:var(--shadow);
+      padding:20px 20px 18px;
+    }
+    .tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:20px;padding:0 2px}
+    .tabs button{flex:1;background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);padding:12px 10px;cursor:pointer;font:inherit;font-weight:700}
+    .tabs button[aria-selected="true"]{border-color:var(--accent);color:var(--accent)}
     form{display:grid;gap:14px}
-    label{display:grid;gap:5px;font-size:13px;font-weight:600}
-    input{width:100%;padding:10px;border:1px solid var(--line);border-radius:5px;background:#fff;color:var(--fg);font:inherit}
-    button.submit{border:0;border-radius:5px;background:var(--accent);color:#fff;padding:10px 14px;font:inherit;font-weight:600;cursor:pointer}
-    #message{min-height:20px;margin:0;font-size:13px;color:var(--error)}
-    #message[data-kind="success"]{color:var(--success)}
+    label{display:grid;gap:6px;font-size:13px;font-weight:700;color:var(--muted)}
+    input{width:100%;padding:10px 12px;border:1px solid var(--line-strong);border-radius:10px;background:#fff;color:var(--fg);font:inherit;min-height:42px}
+    input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(45,108,223,.12)}
+    button.submit{border:0;border-radius:10px;background:var(--accent);color:#fff;padding:10px 14px;font:inherit;font-weight:700;cursor:pointer;min-height:42px;transition:background .2s ease, transform .15s ease}
+    button.submit:hover{background:var(--accent-dark);transform:translateY(-1px)}
+    #message{min-height:22px;margin:12px 0 0;padding:8px 10px;border-radius:8px;font-size:13px;color:var(--error);background:var(--error-bg);border:1px solid rgba(179,38,30,.08)}
+    #message[data-kind="success"]{color:var(--success);background:var(--success-bg);border-color:rgba(31,122,70,.08)}
     [hidden]{display:none!important}
-    @media(prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#14181d;--fg:#e6e9ed;--muted:#aab4bf;--card:#1d232b;--line:#343c47;--accent:#6ea4f4}input{background:#14181d}}
+    @media (prefers-color-scheme: dark){
+      :root{color-scheme:dark;--bg:#141b22;--fg:#eaf1f7;--muted:#a9b6c4;--card:#1d2733;--line:#2f3b48;--line-strong:#47576c;--accent:#6ea4ff;--accent-dark:#80b1ff;--error:#ff8c82;--error-bg:#3a1a1c;--success:#74d9a0;--success-bg:#123526}
+      input{background:#14181d}
+    }
   </style>
 </head>
 <body>
@@ -57,6 +92,7 @@
     const showMessage = (text, kind="error") => {
       $("message").textContent = text;
       $("message").dataset.kind = kind;
+      $("message").hidden = !text;
     };
     const setMode = signup => {
       $("signin-tab").setAttribute("aria-selected", String(!signup));
@@ -75,14 +111,26 @@
     };
     $("signup-form").onsubmit = async event => {
       event.preventDefault();
-      const {error} = await sb.auth.signUp({
-        email:$("signup-email").value,
-        password:$("signup-password").value,
-        options:{data:{student_id:$("signup-id").value.trim(),full_name:$("signup-name").value.trim()}}
-      });
-      if(error) return showMessage(error.message);
-      setMode(false);
-      showMessage("Account created. Sign in to continue.","success");
+      const button = $("signup-form").querySelector("button[type=submit]");
+      if(button.disabled) return;
+      button.disabled = true;
+      try {
+        const {error} = await sb.auth.signUp({
+          email:$("signup-email").value,
+          password:$("signup-password").value,
+          options:{data:{student_id:$("signup-id").value.trim(),full_name:$("signup-name").value.trim()}}
+        });
+        if(error) {
+          const limited = error.status === 429 || /rate limit/i.test(error.message);
+          return showMessage(limited
+            ? "Signup emails are temporarily rate limited. Wait before trying again, or sign in if this account was already created."
+            : error.message);
+        }
+        setMode(false);
+        showMessage("Account created. Sign in to continue.","success");
+      } finally {
+        button.disabled = false;
+      }
     };
     sb.auth.getSession().then(({data:{session}})=>{if(session) location.replace("index.html");});
   </script>
