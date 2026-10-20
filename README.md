@@ -29,19 +29,6 @@ Stack: HTML/CSS/vanilla JS, Supabase (Postgres + Auth + RLS), `@supabase/supabas
 | A05 | With Deficiency | Failed 1 > 0; late submission |
 | A06 | Blocked | Pending verification |
 
-## Test results (fill in after running; I have not executed these against a live Supabase project)
-| Test | Input/action | Expected | Actual | Pass/Fail | Evidence |
-|---|---|---|---|---|---|
-| TC01 | Evaluate A01 | Compliant | | | |
-| TC02 | Evaluate A02 | With Deficiency, GWA reason | | | |
-| TC03 | Evaluate A03 | Compliant | | | |
-| TC04 | Evaluate A04 | Units + incomplete reasons | | | |
-| TC05 | Evaluate A05 | Failed + late reasons | | | |
-| TC06 | Evaluate / approve A06 | Both blocked ("must be Verified…") | | | |
-| TC07 | Duplicate semester; GWA 0.50; units/failed −1 | Rejected with clear message | | | |
-| TC08 | As scholar A01 query A02 row; call `verify_submission` | 0 rows; "Staff only" | | | |
-| TC09 | Return A06 (reason), sign in as A06's account, resubmit, refresh | Pending, history shows Returned→Resubmitted | | | |
-| TC10 | Staff approve A01, try approve A02, hold A02; scholar RPC `decide_renewal` | Approve OK; A02 approve refused; hold OK; scholar denied | | | |
 
 Quick TC08 check in browser console while signed in as a scholar:
 `await sb.from('submissions').select('*')` (only own row) and `await sb.rpc('verify_submission',{p_id:'<uuid>',p_status:'Verified',p_reason:null})` (error: Staff only).
