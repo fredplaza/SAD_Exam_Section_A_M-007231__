@@ -1,7 +1,4 @@
 # Part I — Analysis and Design: Scholarship Monitoring and Academic Compliance System
-
-Name: ______  Student ID: ______  (Synthetic data only)
-
 ## A1. Investigation and planning
 
 **Problem statement.** The Scholarship Office manages Merit and Community Scholar renewals through spreadsheets, email attachments and paper grade records. This causes duplicate semester entries, unverified grades, missed deadlines and inconsistent decisions, and scholars cannot see whether their submission was received, verified or returned. A browser-based system with Scholar and Staff roles is needed.
